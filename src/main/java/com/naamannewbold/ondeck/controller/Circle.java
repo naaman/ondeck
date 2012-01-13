@@ -14,6 +14,6 @@ public class Circle {
     @GET
     @Produces("text/plain")
     public String getMain() {
-        return "On Deck Circles";
+        return "Circle";
     }
 }
