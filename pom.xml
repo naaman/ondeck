@@ -10,6 +10,7 @@
     <properties>
         <jdk.version>1.6</jdk.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
+        <openid4java.version>0.9.5</openid4java.version>
     </properties>
     <packaging>jar</packaging>
 
@@ -35,6 +36,11 @@
             <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openid4java</groupId>
+            <artifactId>openid4java-consumer</artifactId>
+            <version>${openid4java.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -47,6 +53,7 @@
                     <target>${jdk.version}</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
