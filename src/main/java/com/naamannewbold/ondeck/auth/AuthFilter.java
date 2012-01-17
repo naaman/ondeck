@@ -58,13 +58,14 @@ public class AuthFilter implements ContainerRequestFilter {
                 // the user may have already authorized this app. attempt to verify their account. if it
                 // fails, catch the exception and authenticate them.
                 verify();
+                return containerRequest;
             } catch (OpenIDException e) {
                 // authenicate the user since we are unable to verify the account.
                 authenticate(containerRequest);
+
+                throw new UnsupportedOperationException("The user is not authenticated.");
             }
 
-            throw new UnsupportedOperationException("The user is not authenticated. " +
-                    "Both verification and authentication with the Open ID provider has somehow failed, which shouldn't be possible.");
         }
         // user is already authenticated. pass them through.
         return containerRequest;

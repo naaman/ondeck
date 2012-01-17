@@ -7,12 +7,27 @@
     <groupId>ondeck</groupId>
     <artifactId>ondeck</artifactId>
     <version>1.0</version>
+
     <properties>
         <jdk.version>1.6</jdk.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
         <openid4java.version>0.9.5</openid4java.version>
+        <spymemcached.version>2.7</spymemcached.version>
     </properties>
+
     <packaging>jar</packaging>
+
+    <repositories>
+        <repository>
+            <id>spy</id>
+            <name>Spy Repository</name>
+            <layout>default</layout>
+            <url>http://files.couchbase.com/maven2/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <dependencies>
         <!--<dependency>-->
@@ -41,6 +56,17 @@
             <artifactId>openid4java-consumer</artifactId>
             <version>${openid4java.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-nosql</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>spy</groupId>
+            <artifactId>spymemcached</artifactId>
+            <version>${spymemcached.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
