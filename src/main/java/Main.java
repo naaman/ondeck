@@ -1,20 +1,13 @@
 import com.naamannewbold.ondeck.auth.AuthFilter;
-import com.ovea.jetty.session.redis.RedisSessionIdManager;
-import com.ovea.jetty.session.redis.RedisSessionManager;
-import com.ovea.jetty.session.serializer.JsonSerializer;
 import com.sun.jersey.api.core.ResourceConfig;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.HashSessionManager;
+import org.eclipse.jetty.server.session.JDBCSessionIdManager;
+import org.eclipse.jetty.server.session.JDBCSessionManager;
 import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Protocol;
 
 import java.net.URI;
-import java.net.URL;
 
 /**
  * TODO: Javadoc
@@ -24,25 +17,30 @@ import java.net.URL;
 public class Main {
     public static void main(String... args) throws Exception {
         int port = Integer.valueOf(System.getProperty("port", (System.getenv("PORT") != null) ? System.getenv("PORT") : "8080"));
-        URI redisConfigURL = new URI(System.getProperty("REDISTOGO_URL", System.getenv("REDISTOGO_URL")));
+        URI databaseURL = new URI(System.getProperty("DATABASE_URL", System.getenv("DATABASE_URL")));
+        String[] dbUserInfo = databaseURL.getUserInfo().split(":", 2);
+
+        String jdbcConfigURL = "jdbc:postgres://" + databaseURL.getHost() +
+                ((databaseURL.getPort() != -1) ? ":" + databaseURL.getPort() : "") +
+                ((databaseURL.getPath() != null) ? databaseURL.getPath() : "/" ) +
+                "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory" +
+                "&user=" + dbUserInfo[0] +
+                "&password=" + dbUserInfo[1];
 
         Server server = new Server(port);
-
-        JedisPool jedisPool = new JedisPool(new JedisPoolConfig(),
-                redisConfigURL.getHost(),
-                redisConfigURL.getPort(),
-                Protocol.DEFAULT_TIMEOUT,
-                redisConfigURL.getUserInfo().split(":",2)[1]);
 
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
 
-        RedisSessionManager sessionManager = new RedisSessionManager(jedisPool, new JsonSerializer());
-        sessionManager.setSessionPath("/");
-        context.setSessionHandler(new SessionHandler(sessionManager));
-
-        RedisSessionIdManager sessionIdManager = new RedisSessionIdManager(server, jedisPool);
+        JDBCSessionIdManager sessionIdManager = new JDBCSessionIdManager(server);
+        sessionIdManager.setWorkerName("balin");
+        sessionIdManager.setDriverInfo(new org.postgresql.Driver(), jdbcConfigURL);
+        sessionIdManager.setScavengeInterval(60);
         server.setSessionIdManager(sessionIdManager);
+
+        JDBCSessionManager sessionManager = new JDBCSessionManager();
+        sessionManager.setSessionIdManager(sessionIdManager);
+        context.setSessionHandler(new SessionHandler(sessionManager));
 
         server.setHandler(context);
 
