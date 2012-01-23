@@ -1,13 +1,13 @@
 import com.naamannewbold.ondeck.auth.AuthFilter;
 import com.sun.jersey.api.core.ResourceConfig;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.JDBCSessionIdManager;
-import org.eclipse.jetty.server.session.JDBCSessionManager;
-import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.server.session.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 /**
  * TODO: Javadoc
@@ -20,7 +20,7 @@ public class Main {
         URI databaseURL = new URI(System.getProperty("DATABASE_URL", System.getenv("DATABASE_URL")));
         String[] dbUserInfo = databaseURL.getUserInfo().split(":", 2);
 
-        String jdbcConfigURL = "jdbc:postgres://" + databaseURL.getHost() +
+        String jdbcConfigURL = "jdbc:postgresql://" + databaseURL.getHost() +
                 ((databaseURL.getPort() != -1) ? ":" + databaseURL.getPort() : "") +
                 ((databaseURL.getPath() != null) ? databaseURL.getPath() : "/" ) +
                 "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory" +
@@ -41,9 +41,8 @@ public class Main {
         JDBCSessionManager sessionManager = new JDBCSessionManager();
         sessionManager.setSessionIdManager(sessionIdManager);
         context.setSessionHandler(new SessionHandler(sessionManager));
-
         server.setHandler(context);
-
+        
         ServletHolder holder = new ServletHolder(com.sun.jersey.spi.container.servlet.ServletContainer.class);
         holder.setInitParameter("com.sun.jersey.config.property.packages", "com.naamannewbold.ondeck");
         holder.setInitParameter(ResourceConfig.PROPERTY_CONTAINER_REQUEST_FILTERS, AuthFilter.class.getName());
