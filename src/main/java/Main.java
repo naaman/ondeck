@@ -1,14 +1,13 @@
 import com.naamannewbold.ondeck.auth.AuthFilter;
+import com.naamannewbold.ondeck.config.DB;
 import com.sun.jersey.api.core.ResourceConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.session.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.hibernate.ejb.Ejb3Configuration;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 
 /**
  * TODO: Javadoc
@@ -18,7 +17,7 @@ import java.sql.DriverManager;
 public class Main {
     public static void main(String... args) throws Exception {
         int port = port();
-        String jdbcConfigURL = db();
+        String jdbcConfigURL = DB.PG.jdbcUrl();
 
         Server server = new Server(port);
 
@@ -61,26 +60,12 @@ public class Main {
         return sessionIdManager;
     }
 
-    private static String db() throws URISyntaxException {
-        URI databaseURL = new URI(System.getProperty("DATABASE_URL", System.getenv("DATABASE_URL")));
-        boolean useDbSSL = System.getProperty("DATABASE_SSL", System.getenv("DATABASE_SSL")).equalsIgnoreCase("true");
-        String[] dbUserInfo = databaseURL.getUserInfo().split(":", 2);
-
-        // parse DATABASE_URL into a jdbc string
-        String jdbcConfigURL = "jdbc:postgresql://" + databaseURL.getHost() +
-                ((databaseURL.getPort() != -1) ? ":" + databaseURL.getPort() : "") +
-                ((databaseURL.getPath() != null) ? databaseURL.getPath() : "/" ) +
-                "?user=" + dbUserInfo[0] +
-                "&password=" + dbUserInfo[1];
-
-        // only use SSL if the env calls for it
-        if (useDbSSL)
-            jdbcConfigURL += "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory";
-        
-        return jdbcConfigURL;
+    private static String prop(String p, String e, String def) {
+        String prop = System.getProperty(p, System.getenv(e));
+        return (prop != null) ? prop : def;
     }
 
     private static Integer port() {
-        return Integer.valueOf(System.getProperty("port", (System.getenv("PORT") != null) ? System.getenv("PORT") : "8080"));
+        return Integer.valueOf(prop("port", "PORT", "8080"));
     }
 }

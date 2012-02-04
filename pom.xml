@@ -12,25 +12,12 @@
         <jdk.version>1.6</jdk.version>
         <jetty.version>8.0.4.v20111024</jetty.version>
         <openid4java.version>0.9.5</openid4java.version>
-        <spymemcached.version>2.7</spymemcached.version>
-        <jetty-session-redis.version>2.3.ga</jetty-session-redis.version>
-        <jedis.version>2.0.0</jedis.version>
         <postgresql.version>8.4-702.jdbc4</postgresql.version>
+        <hibernate.version>3.5.4-Final</hibernate.version>
+        <jackson.version>1.9.2</jackson.version>
     </properties>
 
     <packaging>jar</packaging>
-
-    <repositories>
-        <repository>
-            <id>spy</id>
-            <name>Spy Repository</name>
-            <layout>default</layout>
-            <url>http://files.couchbase.com/maven2/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
@@ -59,10 +46,34 @@
             <version>${postgresql.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.2</version>
+            <version>${jackson.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+        <!-- concrete Log4J Implementation for SLF4J API-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
